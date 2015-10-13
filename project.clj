@@ -1,4 +1,8 @@
 (defproject playback-server "0.1.0-SNAPSHOT"
+  :license {:name "MIT License"
+            :url "http://opensource.org/licenses/MIT"
+            :year 2015
+            :key "mit"}
   :description "Serves holojam data to the web playback client."
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [compojure "1.4.0"]
