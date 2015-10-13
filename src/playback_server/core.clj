@@ -1,5 +1,6 @@
 (ns playback-server.core
-  (:require [compojure.core :refer :all]
+  (:require [playback-server.frames :as frames]
+            [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer
              [wrap-defaults api-defaults]]
@@ -10,24 +11,12 @@
             [manifold.stream :as s]
             [manifold.deferred :as d]
             [manifold.bus :as bus]
-            [clj-struct.core :as clj-struct]
-            [clojure.java.io :as io])
-  (:import [org.apache.commons.io IOUtils])
+            [clj-struct.core :as clj-struct]            
+            [clojure.java.shell :refer [sh]])
   (:gen-class))
 
 (def ^:dynamic frames-data-path
   "recorded_frames")
-
-(defn get-frame-count [path]
-  (with-open [num (io/input-stream (io/file path "frame_count"))]
-    (let [buf (byte-array 4) ;; frame_count is of type UInt32
-          n (.read num buf)]
-      (first (clj-struct/unpack "<I" buf)))))
-
-(defn get-frame [path n]
-  (with-open [frame (io/input-stream
-                     (io/file path (str "frame" n)))]
-    (IOUtils/toByteArray frame)))
 
 (defn read-frame-handler
   [path request]
@@ -47,11 +36,10 @@
           (let [msg (String. msg)]
             (try
               (let [n (Long/parseLong (clojure.string/trim msg))]
-                (if (or (< 0 n) (<= n (get-frame-count path)))
+                (if (or (< 0 n) (<= n (frames/get-frame-count path)))
                   (do
-                    (println "Sending frame" n "..."
-                             (count (get-frame path n)))
-                    (s/put! conn (get-frame path n)))
+                    (println "Sending frame" n "...")
+                    (s/put! conn (frames/get-frame path n)))
                   (do
                     (println "ERROR: Out of bounds frame number"
                              n "requested.")
@@ -62,7 +50,7 @@
                     (println "Sending count...")
                     (s/put! conn
                             (byte-array
-                             (clj-struct/pack "<I" (get-frame-count path)))))
+                             (clj-struct/pack "<I" (frames/get-frame-count path)))))
                   (do
                     (println "ERROR: Improperly formatted message."
                              "Message:" msg
@@ -72,7 +60,7 @@
 
 (defn read-frame-http-handler
   [path fnum]
-  (let [frame (get-frame path fnum)
+  (let [frame (frames/get-frame path fnum)
              binary-stream (new java.io.ByteArrayInputStream frame)]
          (-> (response/response binary-stream)
              (response/content-type "application/octet-stream")
@@ -82,7 +70,7 @@
   (GET "/frames" request
        (read-frame-handler frames-data-path request))
   (GET "/frames/count" []
-       (get-frame-count frames-data-path))
+       (frames/get-frame-count frames-data-path))
   (GET "/frames/:fnum{[0-9]+}" [fnum]
        (read-frame-http-handler frames-data-path fnum))
   (GET "/" []
@@ -97,5 +85,16 @@
 (defn -main [& args]
   (let [port (Integer/parseInt (or (first args) "8080"))]
     (println "Starting server on port" port)
+    (future
+      (Thread/sleep 3000)
+      (try
+        (let [proc (clojure.java.shell/sh
+                    "python" "-m" "webbrowser" (str "localhost:" port))]
+          (when-not (= 0 (:exit proc))
+            (println "Couldn't open webbrowser.")
+            (println (:err proc))))
+        (catch java.io.IOException e
+          (println "No python installation; couldn't open webbrowser."))))
     (binding [frames-data-path (or (second args) frames-data-path)]
-      (http/start-server #'app {:port port}))))
+      (http/start-server #'app {:port port}))
+    (shutdown-agents)))
