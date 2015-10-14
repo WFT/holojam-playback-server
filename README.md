@@ -13,6 +13,12 @@ For testing/running undaemonized use `lein run`.
 
 ## Options
 
+Short | Long                  | Default         | Description
+------|-----------------------|-----------------|-------------
+-d    | --directory DIRECTORY | recorded_frames | Path to frame data directory.
+-p    | --port PORT           | 8080            | Port number.
+-w    | --webbrowser          |                 | Open a webbrowser to the main page (using Python).
+-h    | --help                |
 
 ### Bugs
 
