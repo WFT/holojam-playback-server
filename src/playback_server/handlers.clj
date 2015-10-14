@@ -21,7 +21,7 @@
      (do
        (println "New WebSocket connection...")
        (s/consume
-        (fn [msg]
+        (fn [^bytes msg]
           (let [msg (String. msg)]
             (try
               (let [n (Long/parseLong (clojure.string/trim msg))]
