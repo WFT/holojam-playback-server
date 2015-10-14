@@ -25,7 +25,7 @@
           (let [msg (String. msg)]
             (try
               (let [n (Long/parseLong (clojure.string/trim msg))]
-                (if (or (< 0 n) (<= n (frames/get-frame-count path)))
+                (if (or (pos? n) (<= n (frames/get-frame-count path)))
                   (do
                     (println "Sending frame" n "...")
                     (s/put! conn (frames/get-frame path n)))

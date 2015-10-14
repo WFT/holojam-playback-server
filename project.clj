@@ -8,8 +8,9 @@
                  [compojure "1.4.0"]
                  [ring/ring-defaults "0.1.5"]
                  [aleph "0.4.0"]
-                 [manifold "0.1.0"]
-                 [clj-struct "0.1.0"]]
+                 [manifold "0.1.1"]
+                 [clj-struct "0.1.0"]
+                 [org.clojure/tools.cli "0.3.3"]]
   :main ^:skip-aot playback-server.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
