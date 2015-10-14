@@ -20,9 +20,6 @@ Short | Long                  | Default         | Description
 -w    | --webbrowser          |                 | Open a webbrowser to the main page (using Python).
 -h    | --help                |
 
-### Bugs
-
-...
 ## License
 
 ```
