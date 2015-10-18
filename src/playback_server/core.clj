@@ -5,12 +5,15 @@
             [clojure.tools.cli :refer [parse-opts]])
   (:gen-class))
 
-(defn msg-exit [status msg]
+(defn msg-exit
+  "Exit the program with a message."
+  [status msg]
   ;; Borrowed from clojure/tools.cli example
   (println msg)
   (System/exit status))
 
 (def cli-options
+  "CLI optional flags."
   ;; Adapted from clojure/tools.cli example
   [["-d" "--directory DIRECTORY" "Path to frame data directory."
     :default routes/frames-data-path]
@@ -21,7 +24,9 @@
    ["-w" "--webbrowser" "Open a webbrowser to the main page (using Python)."]
    ["-h" "--help"]])
 
-(defn usage [options-summary]
+(defn usage
+  "Print a usage string."
+  [options-summary]
   ;; Adapted from clojure/tools.cli example
   (clojure.string/join
    \newline
@@ -31,7 +36,9 @@
     "Options:" options-summary ""
     "Check the README for more information."]))
 
-(defn open-webbrowser [url]
+(defn open-webbrowser
+  "Try to use python to open a useful webbrowser."
+  [url]
   (try
     (let [proc (clojure.java.shell/sh
                 "python" "-m" "webbrowser" url)

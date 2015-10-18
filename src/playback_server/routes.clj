@@ -10,6 +10,7 @@
             [ring.util.response :as response]))
 
 (def ^:dynamic frames-data-path
+  "The directory from which to pull frame data."
   "recorded_frames")
 
 (defroutes app-routes
@@ -24,6 +25,7 @@
   (route/not-found "404 Not Found"))
 
 (def app
+  "Webapp encapsulation."
   (-> #'app-routes
       (wrap-resource "unity")
       (wrap-defaults api-defaults)))
